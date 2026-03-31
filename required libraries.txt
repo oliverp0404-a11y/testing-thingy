@@ -1,0 +1,1 @@
+pip install discord.py pycryptodome psutil opencv-python PyAudio PyAutoGUI pynput Pillow pywin32 pyinstaller requests
