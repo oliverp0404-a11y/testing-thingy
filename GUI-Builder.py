@@ -1,10 +1,13 @@
-import customtkinter as ctk
+import tkinter as tk
 import serial
+import time
 
 try:
-    arduino = serial.Serial(port='COM3', baudrate=9600, timeout=0.1)
+    # Standard Arduino port for Raspberry Pi
+    arduino = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=0.1)
+    time.sleep(2)
 except:
-    print("Arduino not found, running in demo mode")
+    print("Arduino not found! Check the USB cable.")
 
 def trigger_flash():
     try:
@@ -13,14 +16,19 @@ def trigger_flash():
     except:
         print("Error: Could not send to Arduino")
 
-app = ctk.CTk()
-app.geometry("400x240")
-app.title("UHD Control Panel v1.0")
+# Setup Window
+root = tk.Tk()
+root.title("UHD Control Panel v1.0")
+root.geometry("800x480") # Fits your 7" screen
 
-label = ctk.CTkLabel(app, text="Ultimate Hacking Device", font=("Roboto", 20))
-label.pack(pady=20)
+# Big Title
+label = tk.Label(root, text="Ultimate Hacking Device", font=("Arial", 30))
+label.pack(pady=40)
 
-flash_button = ctk.CTkButton(app, text="FLASH STRIP", command=trigger_flash, fg_color="green")
-flash_button.pack(pady=10)
+# Big Easy-to-Touch Button
+flash_button = tk.Button(root, text="FLASH STRIP", command=trigger_flash, 
+                         bg="green", fg="white", font=("Arial", 25), 
+                         height=3, width=20)
+flash_button.pack(pady=20)
 
-app.mainloop()
+root.mainloop()
