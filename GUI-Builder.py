@@ -9,10 +9,15 @@ try:
 except:
     print("Arduino not found! Check the USB cable.")
 
-def trigger_flash():
+def trigger_Flash():
     try:
         arduino.write(bytes("FLASH\n", 'utf-8'))
-        print("Command Sent: FLASH")
+    except:
+        print("Error: Could not send to Arduino")
+
+def trigger_Start():
+    try:
+        arduino.write(bytes("START\n", 'utf-8'))
     except:
         print("Error: Could not send to Arduino")
 
@@ -26,9 +31,13 @@ label = tk.Label(root, text="Ultimate Hacking Device", font=("Arial", 30))
 label.pack(pady=40)
 
 # Big Easy-to-Touch Button
-flash_button = tk.Button(root, text="FLASH STRIP", command=trigger_flash, 
+flash_button = tk.Button(root, text="FLASH STRIP", command=trigger_Flash, 
                          bg="green", fg="white", font=("Arial", 25), 
                          height=3, width=20)
+start_button = tk.Button(root, text="START RECEIVING", command=trigger_Start, 
+                         bg="green", fg="white", font=("Arial", 25), 
+                         height=3, width=20)
+start_button.pack(pady=20)
 flash_button.pack(pady=20)
 
 root.mainloop()
